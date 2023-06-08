@@ -14,10 +14,6 @@ module Metadocs
         self.rows = rows
       end
 
-      def colgroup
-        "<colgroup>#{"<col>" * (self.max_column_count)}</colgroup>"
-      end
-
       def max_column_count
         self.rows.map { |row| row.cells.count }.max
       end

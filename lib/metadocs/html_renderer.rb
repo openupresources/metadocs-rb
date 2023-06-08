@@ -18,7 +18,7 @@ module Metadocs
       rows = element.metadata.map do |k, v|
         "<tr><td>#{k}</td><td>#{v.render(type)}</td></tr>"
       end
-      "<table>#{element.colgroup}<tbody>#{rows.join}</tbody></table>"
+      "<table><colgroup>#{"<col>" * (element.max_column_count)}</colgroup><tbody>#{rows.join}</tbody></table>"
     end
 
     def render_list_item
@@ -30,7 +30,7 @@ module Metadocs
     end
 
     def render_table
-      "<table>#{element.colgroup}<tbody>#{render_all(element.rows).join}</tbody></table>"
+      "<table><colgroup>#{"<col>" * (element.max_column_count)}</colgroup><tbody>#{render_all(element.rows).join}</tbody></table>"
     end
 
     def render_table_row
@@ -51,7 +51,7 @@ module Metadocs
         tds = entry.map { |_k_, v| "<td>#{v.render(type)}</td>" }.join
         "<tr>#{tds}</tr>"
       end.join
-      "<table>#{element.colgroup}<thead><tr>#{thead}</tr></thead><tbody>#{rows}</tbody></table>"
+      "<table><colgroup>#{"<col>" * (element.max_column_count)}</colgroup><thead><tr>#{thead}</tr></thead><tbody>#{rows}</tbody></table>"
     end
 
     def render_text
