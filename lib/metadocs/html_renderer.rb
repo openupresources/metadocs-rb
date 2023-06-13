@@ -38,8 +38,6 @@ module Metadocs
     end
 
     def render_table_cell
-      # Empty cells must include empty paragraph for RTE markup
-      children_html = render_children.blank? ? "<p></p>" : render_children
       "<td>#{children_html}</td>"
     end
 
