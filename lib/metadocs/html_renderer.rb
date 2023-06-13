@@ -38,7 +38,7 @@ module Metadocs
     end
 
     def render_table_cell
-      "<td>#{children_html}</td>"
+      %(<td colspan="#{element.column_span}" rowspan="#{element.row_span}>#{render_children}</td>)
     end
 
     def render_tag
