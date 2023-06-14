@@ -282,7 +282,7 @@ module Metadocs
         # Parse column_span; see documentation below
         num_of_cells_to_merge_in_current_row = 0
 
-        cell_ids.each_with_index do |cell_id, idx|
+        cell_ids.each_with_index do |cell_id, idx_in_row|
           # The Google API represents all cells as TableCells, even merged cells
           # I.e. a cell consisting of two merged cells still returns as two TableCells with varying col/rowspans.
           # We want to skip over merged cells when parsing the table.
@@ -293,11 +293,11 @@ module Metadocs
           # then skip parsing 1 TableCell at current TableCell index for y-1 subsequent TableRows.
           # Note: You shouldn't be able to create a monstrosity in GDocs where a TableCell has
           # *both* a row_span and column_span greater than 1, but this will support parsing that edge case.
-          if num_of_cells_to_merge_in_current_row > 0 || (num_of_cells_to_merge_by_row_idx[idx] && num_of_cells_to_merge_by_row_idx[idx] > 0)
+          if num_of_cells_to_merge_in_current_row > 0 || (num_of_cells_to_merge_by_row_idx[idx_in_row] && num_of_cells_to_merge_by_row_idx[idx_in_row] > 0)
             if num_of_cells_to_merge_in_current_row > 0
               num_of_cells_to_merge_in_current_row -= 1
-            elsif (num_of_cells_to_merge_by_row_idx[idx] && num_of_cells_to_merge_by_row_idx[idx] > 0)
-              num_of_cells_to_merge_by_row_idx[idx] -= 1
+            elsif (num_of_cells_to_merge_by_row_idx[idx_in_row] && num_of_cells_to_merge_by_row_idx[idx_in_row] > 0)
+              num_of_cells_to_merge_by_row_idx[idx_in_row] -= 1
             end
             next
           end
@@ -307,7 +307,7 @@ module Metadocs
           if current_cell_styles.column_span > 1
             num_of_cells_to_merge_in_current_row = current_cell_styles.column_span.to_i - 1
           elsif current_cell_styles.row_span > 1
-            num_of_cells_to_merge_by_row_idx[idx] = current_cell_styles.row_span.to_i - 1
+            num_of_cells_to_merge_by_row_idx[idx_in_row] = current_cell_styles.row_span.to_i - 1
           end
 
           cell = Elements::TableCell.with_renderers(
