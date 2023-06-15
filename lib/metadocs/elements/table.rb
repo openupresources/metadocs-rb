@@ -13,6 +13,10 @@ module Metadocs
         super()
         self.rows = rows
       end
+
+      def max_column_count
+        self.rows.map { |row| row.cells.count }.max
+      end
     end
   end
 end

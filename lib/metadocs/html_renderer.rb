@@ -30,7 +30,7 @@ module Metadocs
     end
 
     def render_table
-      "<table><tbody>#{render_all(element.rows).join}</tbody></table>"
+      "<table><colgroup>#{"<col>" * element.max_column_count}</colgroup><tbody>#{render_all(element.rows).join}</tbody></table>"
     end
 
     def render_table_row
@@ -38,7 +38,7 @@ module Metadocs
     end
 
     def render_table_cell
-      "<td>#{render_children}</td>"
+      %(<td colspan="#{element.column_span}" rowspan="#{element.row_span}>#{render_children}</td>)
     end
 
     def render_tag

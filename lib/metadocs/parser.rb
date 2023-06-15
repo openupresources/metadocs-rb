@@ -272,11 +272,44 @@ module Metadocs
     def parse_table_reference(_mapping, reference_mapping, _node)
       table = Elements::Table.with_renderers(renderers)
 
+      # Parse row_span; see documentation below
+      num_of_cells_to_merge_by_row_idx = {}
+
       reference_mapping.table_rows.each do |cell_ids|
         row = Elements::TableRow.with_renderers(renderers)
         table.rows << row
-        cell_ids.each do |cell_id|
+
+        # Parse column_span; see documentation below
+        num_of_cells_to_merge_in_current_row = 0
+
+        cell_ids.each_with_index do |cell_id, idx_in_row|
+          # The Google API represents all cells as TableCells, even merged cells
+          # I.e. a cell consisting of two merged cells still returns as two TableCells with varying col/rowspans.
+          # We want to skip over merged cells when parsing the table.
+          # `num_of_cells_to_merge_in_current_row` [Integer] If a TableCell has a column_span
+          # of (x) > 1, then skip parsing x-1 subsequent TableCells.
+          # `num_of_cells_to_merge_by_row_idx` [Hash] where key is a row_idx,
+          # and value is the number of cells to merge at idx. If TableCell has row_span of (y) > 1,
+          # then skip parsing 1 TableCell at current TableCell index for y-1 subsequent TableRows.
+          # Note: You shouldn't be able to create a monstrosity in GDocs where a TableCell has
+          # *both* a row_span and column_span greater than 1, but this will support parsing that edge case.
+          if num_of_cells_to_merge_in_current_row > 0 || (num_of_cells_to_merge_by_row_idx[idx_in_row] && num_of_cells_to_merge_by_row_idx[idx_in_row] > 0)
+            if num_of_cells_to_merge_in_current_row > 0
+              num_of_cells_to_merge_in_current_row -= 1
+            elsif (num_of_cells_to_merge_by_row_idx[idx_in_row] && num_of_cells_to_merge_by_row_idx[idx_in_row] > 0)
+              num_of_cells_to_merge_by_row_idx[idx_in_row] -= 1
+            end
+            next
+          end
+
           cell_mapping = source_map[cell_id]
+          current_cell_styles = cell_mapping['element'].table_cell_style
+          if current_cell_styles.column_span > 1
+            num_of_cells_to_merge_in_current_row = current_cell_styles.column_span.to_i - 1
+          elsif current_cell_styles.row_span > 1
+            num_of_cells_to_merge_by_row_idx[idx_in_row] = current_cell_styles.row_span.to_i - 1
+          end
+
           cell = Elements::TableCell.with_renderers(
             renderers,
             column_span: cell_mapping['element'].table_cell_style.column_span,
