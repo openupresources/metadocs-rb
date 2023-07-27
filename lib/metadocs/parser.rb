@@ -64,7 +64,7 @@ module Metadocs
       end
     end
 
-    def self.parse(google_authorization, doc_id, tags: [], empty_tags: [], metadata_table_spec: [], renderers: [])
+    def self.parse(google_authorization, doc_id, tags: [], empty_tags: [], metadata_table_spec: [], renderers: {})
       document = Metadocs::GoogleDocument.new(google_authorization, doc_id)
       parser = new(
         document.document,
@@ -232,7 +232,9 @@ module Metadocs
 
     # currently only replaces image references
     def parse_paragraph_reference(_mapping, reference_mapping, _node)
-      first_nearby_text = reference_mapping["element"].content.map(&:paragraph).first.elements.map(&:text_run).compact.map(&:content).join.strip
+      paragraph = reference_mapping["element"].content.map(&:paragraph).first
+      return unless paragraph
+      first_nearby_text = paragraph.elements.map(&:text_run).compact.map(&:content).join.strip
       first_nearby_text = "\"#{first_nearby_text}\"" unless first_nearby_text.empty?
       first_nearby_text = "{no text in table cell}" if first_nearby_text.empty?
       if (obj_id = reference_mapping.positioned_object_id)
