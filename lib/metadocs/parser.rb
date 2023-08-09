@@ -277,7 +277,6 @@ module Metadocs
 
       reference_mapping.table_rows.each do |cell_ids|
         row = Elements::TableRow.with_renderers(renderers)
-        table.rows << row
 
         # Parse column_span; see documentation below
         num_of_cells_to_merge_in_current_row = 0
@@ -324,6 +323,7 @@ module Metadocs
           )
           cell.children = walk_ast(cell_mapping, cell_bbdocs.parse(cell_mapping.source))
         end
+        table.rows << row if row.cells.any? # Don't create an empty row when all of the row's cells have been merged with another row's cells
       end
 
       @tables << table
@@ -382,7 +382,6 @@ module Metadocs
         else
           # Merge related children
           parent_paragraph_idx = key_children.index { |c| c.is_a?(Elements::Paragraph) }
-          binding.pry if parent_paragraph_idx.nil?
           raise ParserError.new("Invalid nesting of tags near '#{key_children.map(&:render).join}'.") if parent_paragraph_idx.nil?
           parent_paragraph = key_children[parent_paragraph_idx]
           if parent_paragraph_idx.positive?
