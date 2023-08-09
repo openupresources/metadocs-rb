@@ -382,7 +382,6 @@ module Metadocs
         else
           # Merge related children
           parent_paragraph_idx = key_children.index { |c| c.is_a?(Elements::Paragraph) }
-          binding.pry if parent_paragraph_idx.nil?
           raise ParserError.new("Invalid nesting of tags near '#{key_children.map(&:render).join}'.") if parent_paragraph_idx.nil?
           parent_paragraph = key_children[parent_paragraph_idx]
           if parent_paragraph_idx.positive?
