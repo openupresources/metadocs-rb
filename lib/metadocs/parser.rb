@@ -323,7 +323,7 @@ module Metadocs
           )
           cell.children = walk_ast(cell_mapping, cell_bbdocs.parse(cell_mapping.source))
         end
-        table.rows << row if row.cells.any? # Don't create empty rows when entire row has been merged
+        table.rows << row if row.cells.any? # Don't create an empty row when all of the row's cells have been merged with another row's cells
       end
 
       @tables << table
