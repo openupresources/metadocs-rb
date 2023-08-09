@@ -277,7 +277,6 @@ module Metadocs
 
       reference_mapping.table_rows.each do |cell_ids|
         row = Elements::TableRow.with_renderers(renderers)
-        table.rows << row
 
         # Parse column_span; see documentation below
         num_of_cells_to_merge_in_current_row = 0
@@ -324,6 +323,7 @@ module Metadocs
           )
           cell.children = walk_ast(cell_mapping, cell_bbdocs.parse(cell_mapping.source))
         end
+        table.rows << row if row.cells.any? # Don't create empty rows when entire row has been merged
       end
 
       @tables << table
